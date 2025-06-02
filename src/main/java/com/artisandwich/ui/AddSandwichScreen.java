@@ -1,6 +1,6 @@
 package com.artisandwich.ui;
 
-import com.artisandwich.interfaces.Bread;
+import com.artisandwich.type.Bread;
 import com.artisandwich.item.RyeBread;
 import com.artisandwich.item.Sandwich;
 import com.artisandwich.item.Topping;
@@ -9,109 +9,96 @@ import com.artisandwich.item.WhiteBread;
 import com.artisandwich.item.WrapBread;
 import com.artisandwich.service.OrderService;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 public class AddSandwichScreen {
-
     public static void display(OrderService orderService) {
         Scanner scanner = new Scanner(System.in);
-
         System.out.println("\n=== Add Sandwich ===");
 
-        // Miktar seçimi
         System.out.print("Enter quantity: ");
-        int quantityChoice = readIntInRange(scanner, 1, 10);
+        int quantity = readIntInRange(scanner, 1, 10);
 
-        // Sandwich tipi seçimi
-        System.out.println("Select sandwich size:");
-        System.out.println("4");
-        System.out.println("8");
-        System.out.println("12");
+        System.out.println("Select sandwich size:\n4\n8\n12");
         System.out.print("Choice: ");
-        int sizeChoice = readIntInRange(scanner, 4, 12);
+        int size = readIntInRange(scanner, 4, 12);
 
-     // Chose Sandwich bread Type
-        System.out.println("Select bread type:");
-        System.out.println("1) White");
-        System.out.println("2) Wheat");
-        System.out.println("3) Rye");
-        System.out.println("4) Wrap");
+        System.out.println("Select bread type:\n1) White\n2) Wheat\n3) Rye\n4) Wrap");
         System.out.print("Choice: ");
         int breadChoice = readIntInRange(scanner, 1, 4);
 
         Bread bread = switch (breadChoice) {
-        case 1 -> new WhiteBread(sizeChoice);
-        case 2 -> new WheatBread(sizeChoice);
-        case 3 -> new RyeBread(sizeChoice);
-        case 4 -> new WrapBread(sizeChoice);
-        default -> null;
-    };
+            case 1 -> new WhiteBread(size);
+            case 2 -> new WheatBread(size);
+            case 3 -> new RyeBread(size);
+            case 4 -> new WrapBread(size);
+            default -> null;
+        };
 
-        // Adding Topping
-        List<Topping> toppingChoices = new ArrayList();
-        boolean addMoreToppings = true;
-        while (addMoreToppings) {
+        List<Topping> toppings = new ArrayList<>();
+
+        boolean adding = true;
+        while (adding) {
             System.out.print("Add topping? (Y/N): ");
             String input = scanner.nextLine().trim().toUpperCase();
             if (input.equals("Y")) {
-                System.out.println("Available toppings:");
-                System.out.println("1) Lettuce");
-                System.out.println("2) Tomato");
-                System.out.println("3) Onion");
-                System.out.println("4) Cheese");
-                System.out.println("5) Meat");
+                System.out.println("Available toppings:\n1) Lettuce\n2) Tomato\n3) Onion\n4) Cheese\n5) Meat");
                 System.out.print("Choose topping number: ");
-                int toppingChoice = readIntInRange(scanner, 1, 5);
+                int choice = readIntInRange(scanner, 1, 5);
 
-                Topping topping = switch (toppingChoice) {
-                    case 1 -> new Topping("lettuce", false);
-                    case 2 -> new Topping("tomato",  false);
-                    case 3 -> new Topping("tomato",  false);
-                    case 4 -> new Topping("cheese",  false);
-                    case 5 -> new Topping("meat",  false);
-                    default -> null;
-                };
-
-
-
-                boolean isAlreadyExist = toppingChoices.contains(topping);
-                topping.setExtra(isAlreadyExist);
+                Topping topping = null;
+                switch (choice) {
+                    case 1 -> topping = new Topping("regular", "lettuce", false, size);
+                    case 2 -> topping = new Topping("regular", "tomato", false, size);
+                    case 3 -> topping = new Topping("regular", "onion", false, size);
+                    case 4 -> {
+                        String cheese = selectVariant(scanner, "cheese", List.of("american", "provolone", "cheddar", "swiss"));
+                        topping = new Topping("cheese", cheese, false, size);
+                    }
+                    case 5 -> {
+                        String meat = selectVariant(scanner, "meat", List.of("steak", "ham", "salami", "roast beef", "chicken", "bacon"));
+                        topping = new Topping("meat", meat, false, size);
+                    }
+                }
 
                 if (topping != null) {
-                	toppingChoices.add(topping);
+                    boolean exists = toppings.contains(topping);
+                    topping.setExtra(exists);
+                    toppings.add(topping);
                     System.out.println(topping.getName() + " added.");
                 }
+
             } else if (input.equals("N")) {
-                addMoreToppings = false;
+                adding = false;
             } else {
                 System.out.println("Please enter Y or N.");
             }
         }
 
-        Sandwich sandwich = new Sandwich(quantityChoice, bread, toppingChoices);
-
-        // Add into Order
+        Sandwich sandwich = new Sandwich(quantity, bread, toppings);
         orderService.addSandwich(sandwich);
-        System.out.println(quantityChoice + " x " + bread.getName() + " sandwich added to your order.");
+        System.out.println(quantity + " x " + bread.getName() + " sandwich added to your order.");
     }
 
     private static int readIntInRange(Scanner scanner, int min, int max) {
         while (true) {
             try {
-                String line = scanner.nextLine();
-                int input = Integer.parseInt(line);
-                if (input >= min && input <= max) {
-                    return input;
-                }
-                System.out.print("Please enter a number between " + min + " and " + max + ": ");
+                int input = Integer.parseInt(scanner.nextLine());
+                if (input >= min && input <= max) return input;
+                System.out.print("Enter between " + min + " and " + max + ": ");
             } catch (NumberFormatException e) {
-                System.out.print("Invalid input. Enter a number: ");
+                System.out.print("Invalid number. Try again: ");
             }
         }
+    }
+
+    private static String selectVariant(Scanner scanner, String type, List<String> options) {
+        System.out.println("Select " + type + " type:");
+        for (int i = 0; i < options.size(); i++) {
+            System.out.println((i + 1) + ") " + options.get(i));
+        }
+        System.out.print("Choice: ");
+        int index = readIntInRange(scanner, 1, options.size());
+        return options.get(index - 1);
     }
 }

@@ -1,6 +1,6 @@
 package com.artisandwich.item;
 
-import com.artisandwich.interfaces.Bread;
+import com.artisandwich.type.Bread;
 
 public class WrapBread extends Bread {
 

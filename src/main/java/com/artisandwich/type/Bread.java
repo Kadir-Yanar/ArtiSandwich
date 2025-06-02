@@ -1,4 +1,6 @@
-package com.artisandwich.interfaces;
+package com.artisandwich.type;
+
+import com.artisandwich.interfaces.Price;
 
 public abstract class Bread implements Price {
 

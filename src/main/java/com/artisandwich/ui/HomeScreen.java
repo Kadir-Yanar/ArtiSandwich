@@ -6,7 +6,7 @@ public class HomeScreen {
     public static void display() {
         Scanner scanner = new Scanner(System.in);
         while (true) {
-            System.out.println("\n=== DELI-cious - Home ===");
+            System.out.println("\n=== ArtiSandwich Shop - Home ===");
             System.out.println("1) New Order");
             System.out.println("0) Exit");
             System.out.print("Choose an option: ");

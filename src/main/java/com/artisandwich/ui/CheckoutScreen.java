@@ -1,6 +1,5 @@
 package com.artisandwich.ui;
 
-import com.artisandwich.service.MenuNavigator;
 import com.artisandwich.service.OrderService;
 
 import java.util.Scanner;
